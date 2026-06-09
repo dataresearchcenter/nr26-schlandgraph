@@ -10,11 +10,29 @@ Baustein des [FollowTheMoney](https://followthemoney.tech)-Stacks.
 
 ## Worum geht es?
 
-Die Pipeline kombiniert **deutsche Einfluss- und Lobbydaten** (AbgeordnetenWatch,
-Lobbyregister) mit **Vergleichsdaten von [OpenSanctions](https://www.opensanctions.org)**
-(Bundestag-/Bundesrat-PEPs, Aserbaidschan-Laundromat). Der investigative Reiz:
-Taucht dieselbe Person in AbgeordnetenWatch **und** in einer PEP- oder
-Laundromat-Liste auf? Genau das macht die Dedup-Stufe sichtbar.
+Die Pipeline kombiniert zwei Arten von Quellen:
+
+**Deutsche Einfluss- und Lobbydaten** (von [data.ftm.store](https://data.ftm.store),
+bereits ins FtM-Format gemappt):
+
+- `de_abgeordnetenwatch_full` — Abgeordnete, Mandate, Parteien
+- `de_abgeordnetenwatch_sidejobs` — Nebentätigkeiten
+- `de_abgeordnetenwatch_lobbykontakte` — protokollierte Lobbykontakte
+- `de_abgeordnetenwatch_parteispenden` — Parteispenden
+- `de_abgeordnetenwatch_sponsoring` — Sponsoring
+- `de_lobbyregister` — Lobbyregister des Bundestages *(liegt bei
+  [OpenAleph](https://s3.investigativedata.org/data.openaleph.org/de_lobbyregister/entities.ftm.json),
+  eigener Host, ~410 MB)*
+
+**Vergleichsdaten von [OpenSanctions](https://www.opensanctions.org)**, um
+Personen über Quellen hinweg zu verknüpfen:
+
+- `de_bundestag`, `de_bundesrat` — PEP-Listen (politisch exponierte Personen)
+- `az_laundromat` — der Aserbaidschan-Laundromat (Geldwäsche-/Einflussschema,
+  das auch europäische Politiker:innen erreichte)
+
+Der investigative Reiz: Taucht dieselbe Person in AbgeordnetenWatch **und** in
+einer PEP- oder Laundromat-Liste auf? Genau das macht die Dedup-Stufe sichtbar.
 
 Vollständige Details zu jeder Quelle (Entitätszahlen, Schemata, Herausgeber):
 siehe **[SOURCES.md](SOURCES.md)**.

@@ -1,0 +1,79 @@
+# ftmg-Konfiguration für den Schlandgraph (Neo4j-Property-Graph)
+#
+# Steuert, wie FollowTheMoney-Entitäten in Knoten und Kanten übersetzt werden:
+# welche Schemata ignoriert werden, welche Property-Typen als eigene (geteilte)
+# Knoten "reifiziert" werden, und welche Themen-Tags als Labels erscheinen.
+
+db:
+  url: bolt://localhost:7687
+  username: neo4j
+  # Über NEO4J_PASSWORD / .envrc setzen statt hier hartzukodieren.
+  password: schlandgraph
+
+nodes:
+  schemata:
+    # Hilfs-/Beziehungsschemata, die wir nicht als eigene Knoten wollen
+    Position:
+      ignore: true
+    Address:
+      ignore: true
+    # Personen als "Human" labeln (vermeidet Konflikt mit reserviertem Begriff)
+    Person:
+      label: "Human"
+
+  # Geteilte Werte als eigene Knoten anlegen — so werden z. B. dieselbe
+  # Adresse oder Telefonnummer bei mehreren Entitäten sofort als Verbindung
+  # sichtbar. Das ist der "Spuren verbinden"-Kern der Graph-Recherche.
+  types:
+    name:
+      reify: true
+    address:
+      reify: true
+    identifier:
+      reify: true
+    phone:
+      reify: true
+    email:
+      reify: true
+    url:
+      reify: true
+
+  # Themen-Tags (FtM topics) als zusätzliche Labels — erleichtert das
+  # Filtern im Graphen (z. B. alle Politiker:innen, alle Banken).
+  topics:
+    "role.pep":
+      label: "Politician"
+    "role.rca":
+      label: "CloseAssociate"
+    "poi":
+      label: "PersonOfInterest"
+    "gov.head":
+      label: "HeadOfState"
+    "gov.executive":
+      label: "Executive"
+    "gov.legislative":
+      label: "Legislative"
+    "gov.judicial":
+      label: "Judicial"
+    "fin.bank":
+      label: "Bank"
+    "fin":
+      label: "FinancialServices"
+    "crime.fin":
+      label: "FinancialCrime"
+    "sanction":
+      label: "Sanctioned"
+    # Verwaltungsebenen interessieren als Label nicht
+    "gov.national":
+      ignore: true
+    "gov.state":
+      ignore: true
+    "gov.muni":
+      ignore: true
+
+edges:
+  schemata:
+    # Amtszeiten/Mitgliedschaften lassen wir als direkte Kanten weg, um den
+    # Graphen lesbar zu halten (kann zum Experimentieren aktiviert werden).
+    Occupancy:
+      ignore: true

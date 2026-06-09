@@ -1,0 +1,15 @@
+# Heruntergeladene & abgeleitete Daten
+data/
+
+# Nomenklatura: Resolver-DB und Xref-Index
+nomenklatura.db*
+nomenklatura.data/
+xref-index/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Editor / OS
+.DS_Store

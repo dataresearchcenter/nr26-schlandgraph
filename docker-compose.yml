@@ -1,0 +1,19 @@
+# Lokales Neo4j für die optionale Graph-Stufe (make graph).
+# Start:  docker compose up -d
+# Browser: http://localhost:7474  (Login: neo4j / schlandgraph)
+services:
+  neo4j:
+    image: neo4j:5
+    container_name: schlandgraph-neo4j
+    ports:
+      - "7474:7474" # HTTP / Neo4j Browser
+      - "7687:7687" # Bolt (ftmg verbindet hierüber)
+    environment:
+      NEO4J_AUTH: neo4j/schlandgraph
+      # APOC-Plugin für komfortablere Cypher-Abfragen
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j-data:/data
+
+volumes:
+  neo4j-data:

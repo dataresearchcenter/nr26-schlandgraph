@@ -34,6 +34,9 @@ Personen über Quellen hinweg zu verknüpfen:
 Der investigative Reiz: Taucht dieselbe Person in AbgeordnetenWatch **und** in
 einer PEP- oder Laundromat-Liste auf? Genau das macht die Dedup-Stufe sichtbar.
 
+Vollständige Details zu jeder Quelle (Entitätszahlen, Schemata, Herausgeber):
+siehe **[SOURCES.md](SOURCES.md)**.
+
 ## Voraussetzungen
 
 - Python-Umgebung mit `followthemoney` und `nomenklatura` (liefert die CLIs

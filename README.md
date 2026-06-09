@@ -20,8 +20,9 @@ bereits ins FtM-Format gemappt):
 - `de_abgeordnetenwatch_lobbykontakte` — protokollierte Lobbykontakte
 - `de_abgeordnetenwatch_parteispenden` — Parteispenden
 - `de_abgeordnetenwatch_sponsoring` — Sponsoring
-- `de_lobbyregister` — Lobbyregister des Bundestages *(am Quellportal
-  gelegentlich leer; die Pipeline verkraftet das)*
+- `de_lobbyregister` — Lobbyregister des Bundestages *(liegt bei
+  [OpenAleph](https://s3.investigativedata.org/data.openaleph.org/de_lobbyregister/entities.ftm.json),
+  eigener Host, ~410 MB)*
 
 **Vergleichsdaten von [OpenSanctions](https://www.opensanctions.org)**, um
 Personen über Quellen hinweg zu verknüpfen:

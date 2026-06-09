@@ -12,27 +12,29 @@
 
 DATA := data
 
-# Quell-URLs der beiden Datenportale
-FTM := https://data.ftm.store
-OS  := https://data.opensanctions.org/datasets/latest
+# Quell-URLs der Datenportale
+FTM   := https://data.ftm.store
+OS    := https://data.opensanctions.org/datasets/latest
+# Lobbyregister liegt seit Neuestem bei OpenAleph (eigener Host, ~410 MB)
+LOBBY := https://s3.investigativedata.org/data.openaleph.org
 
-# AbgeordnetenWatch + Lobbyregister: bereits ins FtM-Format gemappte Entitäten.
-# Hinweis: de_lobbyregister kann am Quellportal zeitweise leer sein — die
-# Pipeline verkraftet das (leere Statements-Datei mit nur einer Kopfzeile).
+# AbgeordnetenWatch: bereits ins FtM-Format gemappte Entitäten (data.ftm.store).
 FTM_SETS := \
 	de_abgeordnetenwatch_full \
 	de_abgeordnetenwatch_sidejobs \
 	de_abgeordnetenwatch_lobbykontakte \
 	de_abgeordnetenwatch_parteispenden \
-	de_abgeordnetenwatch_sponsoring \
-	de_lobbyregister
+	de_abgeordnetenwatch_sponsoring
 
 # OpenSanctions: PEP-Listen + Aserbaidschan-Laundromat als Vergleichsdaten.
 OS_SETS := de_bundestag de_bundesrat az_laundromat
 
+# Lobbyregister hat einen eigenen Host (s. LOBBY), daher separate Regel.
+LOBBY_JSON := $(DATA)/src/de_lobbyregister.json
+
 FTM_JSON := $(patsubst %,$(DATA)/src/%.json,$(FTM_SETS))
 OS_JSON  := $(patsubst %,$(DATA)/src/%.json,$(OS_SETS))
-ALL_JSON := $(FTM_JSON) $(OS_JSON)
+ALL_JSON := $(FTM_JSON) $(OS_JSON) $(LOBBY_JSON)
 STMT     := $(patsubst $(DATA)/src/%.json,$(DATA)/stmt/%.csv,$(ALL_JSON))
 
 GRAPH_CONFIG := config/graph.yml
@@ -55,6 +57,10 @@ $(FTM_JSON): $(DATA)/src/%.json: | $(DATA)/src
 
 $(OS_JSON): $(DATA)/src/%.json: | $(DATA)/src
 	curl -sf -R -o $@ $(OS)/$*/entities.ftm.json
+
+# Lobbyregister: eigener Host (OpenAleph), daher eigene Download-Regel.
+$(LOBBY_JSON): | $(DATA)/src
+	curl -sf -R -o $@ $(LOBBY)/de_lobbyregister/entities.ftm.json
 
 download: $(ALL_JSON)
 

@@ -61,6 +61,15 @@ Praktisch heißt das: über `Entity` erreicht man **alle** Entitäten, über
 `LegalEntity` alle Personen + Organisationen + Firmen, über `Human` nur
 natürliche Personen.
 
+> **`Company` ist hier fast nie vergeben — nicht zum Finden von Firmen
+> benutzen.** Das Schema-Label hängt von der Quelle ab; die meisten Quellen
+> typisieren Unternehmen nur als `Organization`. Im Lobbyregister tragen z. B.
+> nur **10 von ~24.000** Orgs das Label `Company` — Deutsche Telekom AG,
+> ThyssenKrupp AG, Deloitte, Schufa usw. sind alle bloß `Organization`.
+> `MATCH (c:Company)` verfehlt also fast alle echten Firmen. Stattdessen auf
+> `Organization`/`LegalEntity` matchen und z. B. über den `caption`
+> (Endung `AG`/`GmbH`/`SE`/`KG`) oder die Rolle weiter eingrenzen.
+
 #### Eigenschaften (Properties) an Entity-Knoten
 
 - `id` — kanonische Entitäts-ID (eindeutig, indiziert). Schlüssel für Joins.
@@ -157,6 +166,11 @@ Kanten tragen immer `id` und `datasets`, dazu die oben genannten featured Felder
 Projekt-/Vergabedaten (EU-Förderung) und tragen außer `id`/`datasets` keine
 featured Felder.
 
+> **Achtung `amount` / `amountEur` sind oft leer.** Bei `PAID`-Kanten aus
+> Sponsoring-Daten fehlt der Eurobetrag (z. B. ~500 der ~27.000 `PAID →
+> PolParty`-Kanten haben kein `amountEur`). Beim Summieren also immer
+> `coalesce(...)` einsetzen, sonst fällt die Kante stillschweigend raus.
+
 **In den Daten (noch) nicht vorhanden**, obwohl als FtM-Edge-Schema möglich —
 also keine Kanten in der aktuellen Instanz: `OWNS` (Ownership),
 `RELATED_TO` (Family), `ASSOCIATED_WITH` (Associate), `LINKED_TO` (UnknownLink).
@@ -184,6 +198,22 @@ direkt zu Kanten; der Typ ist der großgeschriebene Property-Name (z. B.
   `Human`; für „Person oder Organisation“ auf `LegalEntity`.
 - **Zusammengeführte Entitäten** erkennt man an mehr als einem Eintrag in
   `datasets` — der eigentliche „Follow the Money“-Treffer über Quellen hinweg.
+- **Der Dedup ist konservativ — dieselbe reale Org existiert oft als mehrere
+  un-gemergte Knoten** (z. B. „Deutsche Telekom AG“ dreimal mit
+  unterschiedlichen Label-Mengen). Sich allein auf `datasets` zu verlassen
+  unterschätzt Querverbindungen also stark. **Lockerer joinen über den
+  geteilten `name`-Knoten:** `(a)-[:HAS_NAME]->()<-[:HAS_NAME]-(b)`. Nach
+  `graph-prune` steht ein `name`-Knoten immer für einen **geteilten**
+  normalisierten Namen, ist also ein belastbares (wenn auch nicht perfektes)
+  Merge-Signal jenseits des fertigen Dedups.
+- **Nebentätigkeiten (`de_abgeordnetenwatch_sidejobs`) sind keine eigene Kante**,
+  sondern `BELONGS_TO` (Beiräte/Mitgliedschaften) bzw. `DIRECTS` (Aufsichtsrat
+  etc.); die Art steht in `r.role`. **Beträge gibt es nicht** — „Nebeneinkünfte“
+  im Wortsinn lässt sich aus diesen Kanten nicht ableiten, nur die Funktion
+  (oft „ehrenamtlich“).
+- **Parteien stehen selbst im `de_lobbyregister`** (z. B. die Grünen). Bei
+  „Org ist im Lobbyregister“-Joins daher `AND NOT o:PolParty` setzen, sonst
+  leakt schlichte Parteimitgliedschaft als vermeintliche Lobby-Tätigkeit hinein.
 
 ## Beispiel-Abfragen
 
@@ -206,8 +236,29 @@ RETURN p.caption, r.amount, t.caption LIMIT 50;
 MATCH (rep:LegalEntity)-[:REPRESENTS]->(client:LegalEntity)
 RETURN rep.caption, client.caption LIMIT 50;
 
+// Nebentätigkeiten von Politiker:innen bei Lobbyregister-Orgs.
+// Lockerer Join über den geteilten name-Knoten (fängt auch vom Dedup
+// verpasste Merges); NOT o:PolParty filtert reine Parteimitgliedschaft raus.
+MATCH (p:Politician)-[r]->(o)-[:HAS_NAME]->()<-[:HAS_NAME]-(lobby)
+WHERE "de_abgeordnetenwatch_sidejobs" IN r.datasets
+  AND "de_lobbyregister" IN lobby.datasets
+  AND NOT o:PolParty
+RETURN p.caption AS politiker, o.caption AS org,
+       coalesce(r.role[0], "") AS rolle
+ORDER BY politiker LIMIT 50;
+
 // Verbindung zwischen einer Person und dem Aserbaidschan-Laundromat
 MATCH path = (p:Human)-[*1..3]-(c:Company)
 WHERE "az_laundromat" IN c.datasets
 RETURN path LIMIT 25;
+
+// Kern-Treffer dieses Experiments: Firmen, die in einer Quelle (hier
+// az_laundromat) auftauchen UND an deutsche Parteien gespendet haben.
+// Properties sind Listen → [0]; amountEur kann fehlen → coalesce.
+MATCH (c:Company)-[r:PAID]->(p:PolParty)
+WHERE "az_laundromat" IN c.datasets
+RETURN c.caption AS firma, p.caption AS partei,
+       count(r) AS spenden,
+       sum(toFloat(coalesce(r.amountEur[0], "0"))) AS summe_eur
+ORDER BY summe_eur DESC;
 ```

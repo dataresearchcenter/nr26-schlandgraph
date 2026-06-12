@@ -13,6 +13,7 @@ mit jedem Crawl. Alle Datensätze liegen bereits im
 | `de_abgeordnetenwatch_parteispenden` | Parteispenden | 4.795 | Parlamentwatch e.V. |
 | `de_abgeordnetenwatch_sponsoring` | Parteien-Sponsoring | 1.805 | Parlamentwatch e.V. |
 | `de_lobbyregister` | Lobbyregister des Deutschen Bundestages | 277.896 | Deutscher Bundestag |
+| `eu_transparency_register` | EU Transparency Register | 53.275 | Europäische Kommission (Generalsekretariat) |
 | `de_bundestag` | Members of the Bundestag | 5.739 | Deutscher Bundestag |
 | `de_bundesrat` | Members of the Bundesrat | 359 | Bundesrat |
 | `az_laundromat` | Azerbaijani Laundromat | 3.820 | OCCRP |
@@ -68,6 +69,25 @@ Herausgeber: [Deutscher Bundestag](https://www.lobbyregister.bundestag.de/)
 Gesetzlich vorgeschriebenes Register (seit 2022) über Personen und
 Organisationen mit Zugang zum Bundestag zu Lobbyzwecken — inkl. Auftraggeber,
 Beauftragte und Geldgeber. Mit Abstand der größte Einzeldatensatz (~410 MB).
+
+---
+
+## EU-Transparenzdaten (data.ftm.store)
+
+Dieselbe Mechanik eine Ebene höher: Wer in Berlin lobbyiert, tut das oft auch
+in Brüssel. Beide Datensätze pflegt das
+[Data and Research Center – DARC](https://dataresearchcenter.org/);
+Originalquelle ist das Generalsekretariat der Europäischen Kommission.
+
+### `eu_transparency_register`
+**EU Transparency Register** · 53.275 Entitäten ·
+Schemata: `Organization`, `Company`, `Person`, `Representation`, `Address`
+
+Das verpflichtende [Transparenzregister](https://transparency-register.europa.eu/)
+der EU-Institutionen: Organisationen, Firmen und akkreditierte
+Vertreter:innen samt `Representation`-Verknüpfung (wer vertritt wen). Das
+Brüsseler Gegenstück zum Bundestags-Lobbyregister — viele Organisationen
+stehen in beiden Registern, ideales Material für die `xref`-Stufe.
 
 ---
 

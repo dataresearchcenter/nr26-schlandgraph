@@ -16,8 +16,8 @@ DATA := data
 FTM   := https://data.ftm.store
 OS    := https://data.opensanctions.org/datasets/latest
 
-# AbgeordnetenWatch & Lobbyregister: bereits ins FtM-Format gemappte
-# Entitäten (data.ftm.store).
+# AbgeordnetenWatch, Lobbyregister & EU-Transparenzdaten: bereits ins
+# FtM-Format gemappte Entitäten (data.ftm.store).
 FTM_SETS := \
 	de_abgeordnetenwatch_full \
 	de_abgeordnetenwatch_sidejobs \
@@ -25,7 +25,8 @@ FTM_SETS := \
 	de_abgeordnetenwatch_parteispenden \
 	de_abgeordnetenwatch_sponsoring \
 	de_lobbypedia_parteispenden \
-	de_lobbyregister
+	de_lobbyregister \
+	eu_transparency_register
 
 # OpenSanctions: PEP-Listen + Aserbaidschan-Laundromat als Vergleichsdaten.
 OS_SETS := de_bundestag de_bundesrat az_laundromat

@@ -4,16 +4,16 @@ Begleit-Repository zum nr26-Workshop **„Wenn das Geld Spuren hinterlässt:
 Recherchieren mit dem FollowTheMoney-Toolkit“**.
 
 Wir bauen eine kleine, aber vollständige Daten-Pipeline: von rohen Datensätzen
-zu politischem Einfluss und Lobbyismus in Deutschland bis zu einem
-durchsuchbaren, deduplizierten Netzwerk-Graphen. Jede Stufe demonstriert einen
+zu politischem Einfluss und Lobbyismus in Deutschland und auf EU-Ebene bis zu
+einem durchsuchbaren, deduplizierten Netzwerk-Graphen. Jede Stufe demonstriert einen
 Baustein des [FollowTheMoney](https://followthemoney.tech)-Stacks.
 
 ## Worum geht es?
 
 Die Pipeline kombiniert zwei Arten von Quellen:
 
-**Deutsche Einfluss- und Lobbydaten** (von [data.ftm.store](https://data.ftm.store),
-bereits ins FtM-Format gemappt):
+**Deutsche und europäische Einfluss- und Lobbydaten** (von
+[data.ftm.store](https://data.ftm.store), bereits ins FtM-Format gemappt):
 
 - `de_abgeordnetenwatch_full` — Abgeordnete, Mandate, Parteien
 - `de_abgeordnetenwatch_sidejobs` — Nebentätigkeiten
@@ -22,6 +22,8 @@ bereits ins FtM-Format gemappt):
 - `de_abgeordnetenwatch_sponsoring` — Sponsoring
 - `de_lobbypedia_parteispenden` — Partiespenden von LobbyControl
 - `de_lobbyregister` — Lobbyregister des Bundestages *(größter Datensatz, ~410 MB)*
+- `eu_transparency_register` — das EU-Transparenzregister (Lobbyregister von
+  Kommission, Parlament und Rat)
 
 **Vergleichsdaten von [OpenSanctions](https://www.opensanctions.org)**, um
 Personen über Quellen hinweg zu verknüpfen:
@@ -31,7 +33,8 @@ Personen über Quellen hinweg zu verknüpfen:
   das auch europäische Politiker:innen erreichte)
 
 Der investigative Reiz: Taucht dieselbe Person in AbgeordnetenWatch **und** in
-einer PEP- oder Laundromat-Liste auf? Genau das macht die Dedup-Stufe sichtbar.
+einer PEP- oder Laundromat-Liste auf? Lobbyiert dieselbe Organisation in Berlin
+**und** in Brüssel? Genau das macht die Dedup-Stufe sichtbar.
 
 Vollständige Details zu jeder Quelle (Entitätszahlen, Schemata, Herausgeber):
 siehe **[SOURCES.md](SOURCES.md)**.

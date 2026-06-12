@@ -8,6 +8,10 @@ zu politischem Einfluss und Lobbyismus in Deutschland und auf EU-Ebene bis zu
 einem durchsuchbaren, deduplizierten Netzwerk-Graphen. Jede Stufe demonstriert einen
 Baustein des [FollowTheMoney](https://followthemoney.tech)-Stacks.
 
+## Workshop-Präsentation
+
+[darc.li/nr26-ftm](https://darc.li/nr26-ftm)
+
 ## Worum geht es?
 
 Die Pipeline kombiniert zwei Arten von Quellen:

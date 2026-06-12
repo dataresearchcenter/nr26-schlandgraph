@@ -144,8 +144,8 @@ Verbindung sichtbar. Erkundung dann im Neo4j-Browser per Cypher, z. B.:
 
 ```cypher
 // Personen, die sich eine Adresse teilen
-MATCH (p1:Human)-[:ADDRESS]->(a)<-[:ADDRESS]-(p2:Human)
-WHERE id(p1) < id(p2)
+MATCH (p1:Human)-[:HAS_ADDRESS]->(a)<-[:HAS_ADDRESS]-(p2:Human)
+WHERE p1.id < p2.id
 RETURN p1, a, p2 LIMIT 50;
 ```
 

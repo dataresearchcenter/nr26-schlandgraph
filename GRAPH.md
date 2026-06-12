@@ -29,18 +29,31 @@ Jede Entität, deren Schema nicht ignoriert ist, wird zu einem Knoten. Knoten
 tragen **mehrere Labels**: das Basis-Label `Entity`, das eigene Schema-Label
 **plus alle Eltern-Schemata** der FtM-Typhierarchie.
 
+Die folgenden Label-Mengen sind gegen die laufende Neo4j-Instanz verifiziert
+(die genau vorkommenden Schemata hängen von den geladenen Daten ab):
+
 | FtM-Schema | Labels am Knoten |
 |---|---|
-| Person | `Entity` · `Human` · `LegalEntity` · `Thing` |
-| Organization | `Entity` · `Organization` · `LegalEntity` · `Thing` |
-| Company | `Entity` · `Company` · `Organization` · `LegalEntity` · `Asset` · `Thing` |
-| PublicBody | `Entity` · `PublicBody` · `Organization` · `LegalEntity` · `Thing` |
-| Event | `Entity` · `Event` · `Interval` · `Thing` |
+| Person | `Entity` · `Human` · `LegalEntity` |
+| Organization | `Entity` · `Organization` · `LegalEntity` |
+| PolParty | `Entity` · `PolParty` · `Organization` · `LegalEntity` |
+| Company | `Entity` · `Company` · `Organization` · `LegalEntity` · `Asset` |
+| PublicBody | `Entity` · `PublicBody` · `Organization` · `LegalEntity` |
+| Project | `Entity` · `Project` |
+| Contract | `Entity` · `Contract` · `Asset` |
+| Document | `Entity` · `Document` |
+| Article | `Entity` · `Article` · `Document` |
+| Event | `Entity` · `Event` |
+
+> Hinweis: Die abstrakten FtM-Wurzeln `Thing` und `Interval` werden **nicht**
+> als Label vergeben — nur `Entity`, das Schema-Label und die konkreten
+> Eltern-Schemata. `PolParty` ist ein **Schema**-Label (politische Partei,
+> Unterklasse von Organization), kein Topic.
 
 Zwei wichtige Sonderfälle aus `config/graph.yml`:
 
 - **`Person` ⇒ Label `Human`** (nicht `Person`!). Das Schema-Label ist
-  umbenannt; die Eltern-Labels (`LegalEntity`, `Thing`) bleiben.
+  umbenannt; die Eltern-Labels (`LegalEntity`) bleiben.
 - **Ignorierte Schemata werden gar nicht zu Knoten:** `Position` und `Address`.
   (Adressen erscheinen stattdessen als reifizierte Wert-Knoten, s.u.)
 
@@ -63,17 +76,31 @@ natürliche Personen.
 ### Topic-Labels
 
 Klassifizierende FtM-*Topics* werden als **zusätzliche Labels** an Entity-Knoten
-gehängt (gemäß `topics:` in der Config). Relevant hier:
+gehängt. Die in `config/graph.yml` aufgeführten Topics bekommen das dort
+festgelegte Label; **nicht aufgeführte Topics erhalten ein automatisch aus dem
+Topic-Namen gebildetes CamelCase-Label** (z. B. `role.lobby` → `RoleLobby`,
+`gov` → `Gov`). Die Spalte „Im Graphen" zählt die Knoten in der laufenden
+Instanz — viele in der Config definierte Labels kommen mangels passender Daten
+(noch) nicht vor:
 
-| Topic | Zusatz-Label |
-|---|---|
-| `role.pep` | `Politician` |
-| `role.rca` | `CloseAssociate` |
-| `poi` | `PersonOfInterest` |
-| `gov.head` / `gov.executive` / `gov.legislative` / `gov.judicial` | `HeadOfState` / `Executive` / `Legislative` / `Judicial` |
-| `fin.bank` / `fin` | `Bank` / `FinancialServices` |
-| `crime.fin` | `FinancialCrime` |
-| `sanction` | `Sanctioned` |
+| Topic | Zusatz-Label | Im Graphen |
+|---|---|---|
+| `role.lobby` *(auto)* | `RoleLobby` | 39.704 |
+| `role.pep` | `Politician` | 36.967 |
+| `gov.executive` | `Executive` | 35 |
+| `gov` *(auto)* | `Gov` | 17 |
+| `crime.fin` | `FinancialCrime` | 4 |
+| `role.rca` | `CloseAssociate` | 0 |
+| `poi` | `PersonOfInterest` | 0 |
+| `gov.head` | `HeadOfState` | 0 |
+| `gov.legislative` | `Legislative` | 0 |
+| `gov.judicial` | `Judicial` | 0 |
+| `fin.bank` | `Bank` | 0 |
+| `fin` | `FinancialServices` | 0 |
+| `sanction` | `Sanctioned` | 0 |
+
+Die Verwaltungsebenen `gov.national` / `gov.state` / `gov.muni` sind in der
+Config explizit `ignore` und erzeugen daher kein Label.
 
 Beispiel: `MATCH (p:Politician) RETURN p` liefert alle als PEP markierten
 Personen.
@@ -112,20 +139,29 @@ kleingeschrieben.
 FtM-Beziehungsentitäten werden zu Kanten (nicht zu Knoten). Der Relationship-Typ
 ist der großgeschriebene FtM-`edge_label`. Richtung: Quelle → Ziel.
 
-| FtM-Schema | Relationship | von → nach | typische Felder |
-|---|---|---|---|
-| Membership | `BELONGS_TO` | LegalEntity → Organization | role, startDate, endDate |
-| Representation | `REPRESENTS` | LegalEntity → LegalEntity | role, startDate, endDate |
-| Directorship | `DIRECTS` | LegalEntity → Organization | role |
-| Ownership | `OWNS` | LegalEntity → Asset | percentage, startDate |
-| Payment | `PAID` | LegalEntity → LegalEntity | amount, currency, date, purpose |
-| Employment | `WORKS_FOR` | Person → Organization | role |
-| Family | `RELATED_TO` | Person → Person | relationship |
-| Associate | `ASSOCIATED_WITH` | Person → Person | relationship |
-| UnknownLink | `LINKED_TO` | Thing → Thing | role |
+Folgende Kantentypen sind in der laufenden Instanz vorhanden (Spalte „Im
+Graphen" = Anzahl Kanten), sortiert nach Häufigkeit:
 
-Kanten tragen `id`, `datasets` und die oben genannten featured Felder (als
-Listen). **Ignoriert** (keine Kante): `Occupancy` (`HOLDS`, Person → Position) —
+| FtM-Schema | Relationship | von → nach | featured Felder | Im Graphen |
+|---|---|---|---|---|
+| Membership | `BELONGS_TO` | LegalEntity → Organization | role, startDate, date | 87.871 |
+| Representation | `REPRESENTS` | LegalEntity → LegalEntity | role | 39.704 |
+| Payment | `PAID` | LegalEntity → LegalEntity | amount, amountEur, currency, date | 34.944 |
+| (Projektteilnahme) | `PARTICIPATES_IN` | LegalEntity → Project | — | 20.010 |
+| (Vergabe/Zuschlag) | `AWARDED_TO` | Contract → LegalEntity | — | 2.611 |
+| Directorship | `DIRECTS` | LegalEntity → Organization | role, startDate, endDate | 1.669 |
+| Employment | `WORKS_FOR` | Person → Organization | — | 1 |
+
+Kanten tragen immer `id` und `datasets`, dazu die oben genannten featured Felder
+(als Listen). `PARTICIPATES_IN` und `AWARDED_TO` stammen aus den geladenen
+Projekt-/Vergabedaten (EU-Förderung) und tragen außer `id`/`datasets` keine
+featured Felder.
+
+**In den Daten (noch) nicht vorhanden**, obwohl als FtM-Edge-Schema möglich —
+also keine Kanten in der aktuellen Instanz: `OWNS` (Ownership),
+`RELATED_TO` (Family), `ASSOCIATED_WITH` (Associate), `LINKED_TO` (UnknownLink).
+
+**Ignoriert** (keine Kante): `Occupancy` (`HOLDS`, Person → Position) —
 gestrichen, weil auch `Position` als Knoten ignoriert ist.
 
 > Welche dieser Typen tatsächlich vorkommen, hängt von den geladenen Daten ab:

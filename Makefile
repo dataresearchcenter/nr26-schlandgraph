@@ -76,21 +76,27 @@ $(DATA)/schland.statements.csv: $(STMT)
 # ---------------------------------------------------------------------------
 # 4. Resolve — gespeicherte Dedup-Entscheidungen anwenden (canonical_id setzen)
 # ---------------------------------------------------------------------------
-$(DATA)/schland.resolved.csv: $(DATA)/schland.statements.csv
+nomenklatura.db:
+	nk load-resolver /dev/null
+
+$(DATA)/schland.resolved.csv: $(DATA)/schland.statements.csv nomenklatura.db
 	nk apply-statements -i $< -o $@ -f csv
 
 # ---------------------------------------------------------------------------
 # 5. Aggregate — Statements nach canonical_id zu fertigen Entitäten verdichten
 # ---------------------------------------------------------------------------
 $(DATA)/schland.json: $(DATA)/schland.resolved.csv
-	qsv sort -s canonical_id $< | ftm aggregate-statements -f csv -i - -o $@
+	qsv sort -s canonical_id $< | ftm aggregate-statements -s -f csv -i - -o $@
 
 all: $(DATA)/schland.json
 
 # ---------------------------------------------------------------------------
 # 6. Xref — Dedup-Kandidaten finden (Ähnlichkeit zwischen Entitäten scoren)
 # ---------------------------------------------------------------------------
+# nk xref -l 100000 --algorithm er-unstable -a 0.96 $<
+# nk xref -l 10000 -d 0.5 -f az_laundromat --algorithm er-unstable -a 0.96 $<
 xref: $(DATA)/schland.json
+	nk prune
 	nk xref -l 100000 --algorithm er-unstable -a 0.96 $<
 
 # 7. Dedupe — Kandidaten interaktiv beurteilen (TUI). Danach `make all` neu

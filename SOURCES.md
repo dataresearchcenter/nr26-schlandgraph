@@ -67,12 +67,7 @@ Herausgeber: [Deutscher Bundestag](https://www.lobbyregister.bundestag.de/)
 
 Gesetzlich vorgeschriebenes Register (seit 2022) über Personen und
 Organisationen mit Zugang zum Bundestag zu Lobbyzwecken — inkl. Auftraggeber,
-Beauftragte und Geldgeber. Mit Abstand der größte Einzeldatensatz.
-
-> ⚠️ **Eigener Host.** Die Kopie auf `data.ftm.store` ist derzeit leer. Wir
-> beziehen den vollständigen Datensatz (~410 MB) von OpenAleph:
-> `https://s3.investigativedata.org/data.openaleph.org/de_lobbyregister/entities.ftm.json`
-> (siehe `LOBBY`-Variable im `Makefile`).
+Beauftragte und Geldgeber. Mit Abstand der größte Einzeldatensatz (~410 MB).
 
 ---
 
